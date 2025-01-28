@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Просмотр геоданных</title>
+  </head>
+  
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    #top-panel-container {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      position: absolute;
+    }
+
+    #buttons-holder {
+      margin-top: 2px;
+      border-radius: 10px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: fit-content;
+      background-color: #f4f4f4;
+      position: fixed;
+      padding: 10px;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .button {
+      font-size: 20px;
+      font-weight: bold;
+      padding: 10px 20px;
+      margin: 0 10px;
+      cursor: pointer;
+      border: none;
+      border-radius: 5px;
+    }
+
+    .button-blue {
+      background-color: #007bff;
+      color: white;
+    }
+
+    .button-red {
+      background-color: #dc3545;
+      color: white;
+    }
+
+    .button:hover {
+      opacity: 0.8;
+    }
+  </style>
+
+  <body>
+    <div id="top-panel-container">
+      <div id="buttons-holder">
+        <button class="button button-blue" onclick="loadMap('blue')">
+          <!-- Синий -->
+          Частицы РМ2.5
+        </button>
+        <button class="button button-red" onclick="loadMap('red')">
+          <!-- Красный -->
+          Метан
+        </button>
+      </div>
+    </div>
+    <div id="map-container">{{ map_html|safe }}</div>
+
+    <script>
+      function loadMap(group) {
+        fetch(`/${group}`)
+          .then((response) => response.text())
+          .then((html) => {
+            document.getElementById("map-container").innerHTML = html;
+          })
+          .catch((error) => console.error("Error:", error));
+      }
+    </script>
+  </body>
+</html>
