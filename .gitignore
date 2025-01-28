@@ -1,0 +1,20 @@
+# Ignore virtualenv files
+venv/
+*.egg-info/
+lib/
+
+# Ignore pip cache
+.cache/
+pypackages/
+__pycache__/
+
+# Ignore other IDE-specific files
+.idea/
+.vscode/
+
+# Ignore Thumba (Thumbnailer) database
+thumbs.db
+
+# Ignore coverage report files
+coverage.xml
+.coverage
