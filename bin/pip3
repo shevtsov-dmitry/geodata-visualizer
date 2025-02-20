@@ -1,4 +1,4 @@
-#!/home/shd/projects/geodata-visualizer/venv/bin/python3
+#!/home/shd/tmp/venv/bin/python3
 # -*- coding: utf-8 -*-
 import re
 import sys
