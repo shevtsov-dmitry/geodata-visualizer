@@ -1,80 +1,70 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, Response
 import folium
 import pandas as pd
 from sqlalchemy import create_engine
-import geopandas as gpd
 
 app = Flask(__name__)
 
-# Подключение к базе данных
-engine = create_engine('postgresql://user:password@localhost/geodata')
+# Подключение к базе данных PostgreSQL
+DB_USER = "postgres"
+DB_PASS = "123123"
+DB_HOST = "localhost"
+DB_PORT = "5432"
+DB_NAME = "geodata"
+engine = create_engine(f"postgresql://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}")
 
-def generate_map(parameter, display_type='markers'):
-    """
-    Генерирует карту на основе выбранного параметра и типа отображения.
-
-    Args:
-        parameter (str): Загрязняющее вещество (например, 'Оксид углерода').
-        display_type (str): Тип отображения ('markers' или 'polygons').
-    """
-    # Запрос данных из базы данных
+# Функция для получения данных из базы
+def get_data(parameter):
     query = f"""
-    SELECT station_name, latitude, longitude, parameter, monthly_average, ST_AsText(geom) as geom
-    FROM air_quality
-    WHERE parameter = '{parameter}'
+    SELECT latitude, longitude, station_name, monthly_average
+    FROM dataset
+    WHERE parameter = %s
     """
-    gdf = gpd.read_postgis(query, engine, geom_col='geom')
+    df = pd.read_sql(query, engine, params=(parameter,))
+    return df
 
-    # Создание базовой карты
-    mymap = folium.Map(location=[55.7558, 37.6173], zoom_start=10,
-                       tiles='OpenStreetMap')
+# Функция для создания карты
+def create_map(data, color):
+    # Создаем карту, центрируем на средней точке координат (например, Москва)
+    m = folium.Map(location=[55.75, 37.61], zoom_start=10)
 
-    # Добавление слоя спутниковой карты
-    folium.TileLayer('Esri.WorldImagery', name='Спутник').add_to(mymap)
+    # Добавляем маркеры на карту
+    for index, row in data.iterrows():
+        folium.Marker(
+            location=[row['latitude'], row['longitude']],
+            popup=f"{row['station_name']}: {row['monthly_average']}",
+            icon=folium.Icon(color=color)
+        ).add_to(m)
 
-    if display_type == 'markers':
-        # Добавление маркеров
-        for idx, row in gdf.iterrows():
-            color = 'blue' if row['monthly_average'] < 0.5 else 'red'
-            folium.Marker(
-                location=[row['latitude'], row['longitude']],
-                popup=f"{row['station_name']}: {row['monthly_average']}",
-                icon=folium.Icon(color=color)
-            ).add_to(mymap)
-    elif display_type == 'polygons':
-        # Пример создания полигонов (упрощенно, на основе координат)
-        coords = gdf[['latitude', 'longitude']].values.tolist()
-        if coords:
-            folium.Polygon(
-                locations=coords,
-                color='blue',
-                fill=True,
-                fill_color='cyan',
-                fill_opacity=0.5,
-                tooltip=f"{parameter}"
-            ).add_to(mymap)
+    # Возвращаем HTML-код карты
+    return m._repr_html_()
 
-    # Добавление управления слоями
-    folium.LayerControl().add_to(mymap)
-
-    return mymap._repr_html_()
-
+# Главная страница
 @app.route('/')
-def home():
-    # Получить список уникальных параметров
-    query = "SELECT DISTINCT parameter FROM air_quality"
-    parameters = pd.read_sql(query, engine)['parameter'].tolist()
+def index():
+    # Изначально отображаем карту с параметром "Оксид углерода" как пример
+    data = get_data("Оксид углерода")
+    map_html = create_map(data, "blue")
+    return render_template('index.html', map_html=map_html)
 
-    # По умолчанию отображаем карту с первым параметром
-    default_parameter = parameters[0] if parameters else 'Оксид углерода'
-    map_html = generate_map(default_parameter, 'markers')
+# Обработка запросов для обновления карты
+@app.route('/<group>')
+def load_map(group):
+    # Определяем параметр и цвет в зависимости от группы
+    if group == "blue":
+        parameter = "Частицы РМ2.5"
+        color = "blue"
+    elif group == "red":
+        parameter = "Метан"
+        color = "red"
+    else:
+        parameter = "Оксид углерода"
+        color = "blue"
 
-    return render_template('index.html', map_html=map_html, parameters=parameters)
-
-@app.route('/map/<parameter>/<display_type>')
-def update_map(parameter, display_type):
-    map_html = generate_map(parameter, display_type)
-    return map_html
+    # Получаем данные и генерируем карту
+    data = get_data(parameter)
+    map_html = create_map(data, color)
+    return Response(map_html, mimetype='text/html')
 
 if __name__ == '__main__':
     app.run(debug=True)
