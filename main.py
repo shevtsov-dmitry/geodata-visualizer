@@ -56,7 +56,7 @@ def add_base_maps(m):
 
 def add_geo_parameters(m):
     parameters = [
-        {"name": "Взвешенные частицы РМ2.5 (суточные измерения)", "color": "blue", "label": "PM2.5"},
+        {"name": "Взвешенные частицы РМ2.5", "color": "blue", "label": "PM2.5"},
         {"name": "Взвешенные частицы РМ10", "color": "green", "label": "PM10"},
         {"name": "Метан", "color": "red", "label": "Метан"},
         {"name": "Оксид углерода", "color": "purple", "label": "Оксид углерода"}
@@ -64,7 +64,7 @@ def add_geo_parameters(m):
     
     for param in parameters:
         # Создание слоя для каждого параметра
-        show = param["name"] == "Взвешенные частицы РМ2.5 (суточные измерения)" 
+        show = param["name"] == "Оксид углерода" 
         layer = folium.FeatureGroup(name=param["label"], show=show)
         data = get_data(param["name"])
         
