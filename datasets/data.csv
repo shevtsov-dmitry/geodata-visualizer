@@ -1,4 +1,4 @@
-ID;Period;StationName;SurveillanceZoneCharacteristics;AdmArea;District;Parameter;MonthlyAverage;MonthlyAveragePDKss;Longitude;Latitude
+polygon_id;Period;StationName;SurveillanceZoneCharacteristics;AdmArea;District;Parameter;MonthlyAverage;MonthlyAveragePDKss;Longitude;Latitude
 1;янв.22;Казакова;Жилые территории;Центральный административный округ;Басманный район;Взвешенные частицы РМ2.5;0;0.49;37.66059235016695;55.7692907571419
 1;янв.22;Казакова;Жилые территории;Центральный административный округ;Басманный район;Взвешенные частицы РМ2.5;0;0.49;37.664818784513216;55.76514258963613
 1;янв.22;Казакова;Жилые территории;Центральный административный округ;Басманный район;Взвешенные частицы РМ2.5;0;0.49;37.671203396753015;55.76084219360368
