@@ -38,7 +38,7 @@ sudo apt install postgresql
 
 #### Пометка
 
-_ На Ubuntu необходимо редактировать файл конфигурации postgresql для того, чтобы были права подключения к БД._
+_На Ubuntu необходимо редактировать файл конфигурации postgresql для того, чтобы были права подключения к БД._
 _Для этого откройте файл /var/lib/postgres/data/pg_hba.conf от имени администратора и редактируйте ipv4 и ipv6 заменив метод на "trust"._
 
 ![image](readme/guide_postgres_hba.png)
@@ -77,17 +77,18 @@ TEMPLATE template0;
 
 ```SQL
 CREATE TABLE dataset (
-    id SERIAL PRIMARY KEY,
+    id SERIAL PRIMARY KEY, 
+    polygon_id INTEGER,
     period VARCHAR(10),
-    station_name VARCHAR(255),
-    surveillance_zone_characteristics TEXT,
-    adm_area VARCHAR(255),
-    district VARCHAR(255),
-    parameter VARCHAR(255),
+    station_name VARCHAR(255), 
+    surveillance_zone_characteristics TEXT, 
+    adm_area VARCHAR(255),   
+    district VARCHAR(255),  
+    parameter VARCHAR(255), 
     monthly_average DECIMAL,
     monthly_average_pdkss DECIMAL,
     longitude DECIMAL,
-    latitude DECIMAL
+    latitude DECIMAL 
 );
 ```
 
@@ -102,5 +103,9 @@ sudo cp data.csv /var/lib/postgres/
 Добавить датасет в базу данных
 
 ```bash
-\copy dataset(id, period, station_name, surveillance_zone_characteristics, adm_area, district, parameter, monthly_average, monthly_average_pdkss, longitude, latitude) FROM '~/dataset.csv' DELIMITER ';' CSV HEADER;
+\copy dataset(polygon_id, period, station_name, surveillance_zone_characteristics, adm_area, district, parameter, monthly_average, monthly_average_pdkss, longitude, latitude) FROM '~/data.csv' DELIMITER ';' CSV HEADER;
 ```
+
+#### Пометка
+
+_**CSV HEADER** используется для игнорирования первой строки в CSV файле, в случае, когда в нём первая строка - это названия колонок в датасете._
